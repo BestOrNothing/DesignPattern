@@ -26,11 +26,14 @@
 #include <cmath> // fabs()
 #include <stack>
 #include <algorithm> // find_if()
+#include <iostream>
 //---------------------------------------------------------------------------
+
 // Register this check class (by creating a static instance of it)
 namespace {
     CheckOther instance;
 }
+
 
 void CheckOther:: checkThrowObject() {
     //遍历所有的token
@@ -124,6 +127,7 @@ void CheckOther::checkPrivateRef(){
 // - http://www.cplusplus.com/reference/cstdio/getchar/
 // - http://www.cplusplus.com/reference/cstdio/ungetc/ ...
 //----------------------------------------------------------------------------------
+
 void CheckOther::checkCastIntToCharAndBack()
 {
     if (!_settings->isEnabled("warning"))
@@ -2728,108 +2732,96 @@ void CheckOther::unusedLabelError(const Token* tok)
     reportError(tok, Severity::style, "unusedLabel",
                 "Label '" + (tok?tok->str():emptyString) + "' is not used.");
 }
-//std::cout << tok->str() << std::endl;
-/*	if (Token::Match(tok, "%type% %var% ;"))
-{
-s1= tok->next()->str();
-std::cout << s1;
 
-}
-if (Token::Match(tok, "%var% = %num% ;"))
-{
-std::cout << tok->str();
-s2 = tok->str();
+using namespace std;
 
-if (s1 != s2)
-checkVarIfInitError(tok);
-}
-*/
 void CheckOther::checkVarIfInit()
 {
-	std::string s1, s2;
-	for (const Token *tok = _tokenizer->tokens(); tok; tok = tok->next())
-	{
-		
-		if (Token::Match(tok, "%type% %var% ,|;"))
-		{
-
-			if (!(Token::Match(tok->next()->next()->next(), "%var% = %num% ,|;")))
-			{
-				checkVarIfInitError(tok);
-			}
-		}
-	}
+    std::string s1, s2;
+    for (const Token *tok = _tokenizer->tokens(); tok; tok = tok->next())
+    {
+        
+        if (Token::Match(tok, "%type% %var% ,|;"))
+        {
+            
+            if (!(Token::Match(tok->next()->next()->next(), "%var% = %num% ,|;")))
+            {
+                checkVarIfInitError(tok);
+            }
+        }
+    }
 }
 //输出错误信息
 void CheckOther::checkVarIfInitError(const Token *tok)
 {
-   reportError(tok, Severity::style, "uninitialized", "The variable haven't been initialized.");
+    reportError(tok, Severity::style, "uninitialized", "The variable haven't been initialized.");
 }
 
 double deal(string s)
 {
-	int length = sizeof(s);
-	int cnt = 0;
-	double value = 0.0;
-	for (int i = 0; i < length; i++)
-	{
-		if (s[i] != '.')
-		{
-			cnt++;
-		}
-		else break;
-	}
-	
-	for (int i = 0; i < cnt; i++)
-	{
-		value += (s[i]-'0') * pow(10,cnt - i - 1);
-	}
-	//printf("%lf",value);
-	return value;
+    int length = sizeof(s);
+    int cnt = 0;
+    double value = 0.0;
+    for (int i = 0; i < length; i++)
+    {
+        if (s[i] != '.')
+        {
+            cnt++;
+        }
+        else break;
+    }
+    
+    for (int i = 0; i < cnt; i++)
+    {
+        value += (s[i]-'0') * pow(10,cnt - i - 1);
+    }
+    //printf("%lf",value);
+    return value;
 }
 void CheckOther::checktoint()
 {
-	for (const Token *tok = _tokenizer->tokens(); tok; tok = tok->next())
-	{
-		if (Token::Match(tok, "int|long %var% ;") && (Token::Match(tok->next()->next()->next(), "%var% = %num% ,|;")))
-		{
-			string valuex = tok->next()->next()->next()->next()->next()->str();
-			double Value=deal(valuex);
-			//printf("%.1lf",Value);
-			if (Value > 2147483647.0 || Value < -2147483648.0)
-			{
-				checktointError(tok);
-				//printf("ss");
-			}
-		}
-		if (Token::Match(tok, "long long|__int64 %var% ;") && (Token::Match(tok->next()->next()->next(), "%var% = %num% ,|;")))
-		{
-			
-			string valuex = tok->next()->next()->next()->next()->next()->str();
-			double Value = deal(valuex);
-			if (Value > 9223372036854775807.0 || Value < -9223372036854775808.0)
-				checktointError(tok);
-		}
-		if (Token::Match(tok, "unsigned int|unsigned long %var% ;") && (Token::Match(tok->next()->next()->next(), "%var% = %num% ,|;")))
-		{
-			string valuex = tok->next()->next()->next()->next()->next()->str();
-			double Value = deal(valuex);
-			if (Value > 4294967295.0 || Value < 0.0)
-				checktointError(tok);
-		}
-		if (Token::Match(tok, "unsigned __int64 %var% ;") && (Token::Match(tok->next()->next()->next(), "%var% = %num% ,|;")))
-		{
-			string valuex = tok->next()->next()->next()->next()->next()->str();
-			double Value = deal(valuex);
-			if (Value > 18446744073709551615.0 || Value < 0.0)
-				checktointError(tok);
-		}
-	}
+    for (const Token *tok = _tokenizer->tokens(); tok; tok = tok->next())
+    {
+        if (Token::Match(tok, "int|long %var% ;") && (Token::Match(tok->next()->next()->next(), "%var% = %num% ,|;")))
+        {
+            string valuex = tok->next()->next()->next()->next()->next()->str();
+            double Value=deal(valuex);
+            //printf("%.1lf",Value);
+            if (Value > 2147483647.0 || Value < -2147483648.0)
+            {
+                checktointError(tok);
+                //printf("ss");
+            }
+        }
+        if (Token::Match(tok, "long long|__int64 %var% ;") && (Token::Match(tok->next()->next()->next(), "%var% = %num% ,|;")))
+        {
+            
+            string valuex = tok->next()->next()->next()->next()->next()->str();
+            double Value = deal(valuex);
+            if (Value > 9223372036854775807.0 || Value < -9223372036854775808.0)
+                checktointError(tok);
+        }
+        if (Token::Match(tok, "unsigned int|unsigned long %var% ;") && (Token::Match(tok->next()->next()->next(), "%var% = %num% ,|;")))
+        {
+            string valuex = tok->next()->next()->next()->next()->next()->str();
+            double Value = deal(valuex);
+            if (Value > 4294967295.0 || Value < 0.0)
+                checktointError(tok);
+        }
+        if (Token::Match(tok, "unsigned __int64 %var% ;") && (Token::Match(tok->next()->next()->next(), "%var% = %num% ,|;")))
+        {
+            string valuex = tok->next()->next()->next()->next()->next()->str();
+            double Value = deal(valuex);
+            if (Value > 18446744073709551615.0 || Value < 0.0)
+                checktointError(tok);
+        }
+    }
 }
 //输出错误信息
 void CheckOther::checktointError(const Token *tok)
 {
-	reportError(tok, Severity::error, "overflow","There is a error with type conversion");
+    reportError(tok, Severity::error, "overflow","There is a error with type conversion");
 }
+
 
 
