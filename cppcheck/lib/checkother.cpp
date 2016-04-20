@@ -2823,5 +2823,135 @@ void CheckOther::checktointError(const Token *tok)
     reportError(tok, Severity::error, "overflow","There is a error with type conversion");
 }
 
+void CheckOther::checkPointifnull(){
+	std::string;
+	string s1 = "NULL", s2 = "NULL";;
+	int flag = 0, flag1 = 0;
+	const Token *tok2;
+	for (const Token *tok = _tokenizer->tokens(); tok; tok = tok->next())
+	{
+		//std::cout << tok->str() << std::endl;
+
+		if (Token::Match(tok, "%type% * %var%"))
+		{
+
+			s1 = tok->next()->next()->str();
+			for (const Token *tok2 = tok; tok2; tok2 = tok2->next())
+			{
+				if (Token::Match(tok2, "%var%"))
+				{
+					if (tok2->str() == s1)
+						flag1 = 1;
+				}
+			}
+			//std::cout << s1;
+			for (const Token *tok1 = tok; tok1; tok1 = tok1->next()){
+				if (Token::Match(tok1, "if ( 0 ==|!= %var% )")){
+					s2 = tok1->next()->next()->next()->next()->str();
+					//std::cout << s2;
+					break;
+				}
+				if (Token::Match(tok1, "if ( %var% ==|!= 0 )")){
+					s2 = tok1->next()->next()->str();
+					//	std::cout << s2;
+					break;
+				}
+			}
+		}
+
+		if (s1 != s2)
+		{
+			//checkPointifnullError(tok);
+			flag = 1;
+			tok2 = tok;
+			s1 = "NULL";
+			s2 = "NULL";
+		}
+	}
+	if (flag&&flag1)
+	{
+		checkPointifnullError(tok2);
+	}
+
+
+}
+
+void CheckOther::checkPointifnullError(const Token *tok){
+	reportError(tok, Severity::style, "judge null", "The point haven't been judged is or not NULL");
+}
+
+void CheckOther::checkFreespace()
+{
+	std::string;
+	string s1, s2;
+	for (const Token *tok = _tokenizer->tokens(); tok; tok = tok->next())
+	{
+		//std::cout << tok->str() << std::endl;
+
+		if (Token::Match(tok, "free ( %var% )"))
+		{
+			s1 = tok->next()->next()->str();
+			//	std::cout << s1 << std::endl;
+			for (const Token *tok1 = tok; tok1; tok1 = tok1->next()){
+				if (Token::Match(tok1, "* %var%"))
+				{
+					s2 = tok1->next()->str();
+					if (s1 == s2)
+					{
+						checkFreespaceError(tok1);
+
+					}
+					//std::cout << s2 << std::endl;
+
+				}
+			}
+
+		}
+	}
+}
+//输出错误信息
+void CheckOther::checkFreespaceError(const Token *tok)
+{
+	reportError(tok, Severity::warning, "freespace", "The free space has been used!");
+}
+
+void CheckOther::checkPointmatch()
+{
+	std::string;
+	string s1, s2;
+	for (const Token *tok = _tokenizer->tokens(); tok; tok = tok->next())
+	{
+		//	std::cout << tok->str() << std::endl;
+
+		if (Token::Match(tok, "free ( %var% )"))
+		{
+			s1 = tok->next()->next()->str();
+			//std::cout << s1 << std::endl;
+			for (const Token *tok1 = _tokenizer->tokens(); tok1; tok1 = tok1->next()){
+				if ((Token::Match(tok1, "%name% ++")) || (Token::Match(tok1, "%name% --")))
+				{
+					s2 = tok1->str();
+					if (s1 == s2)
+					{
+						checkPointmatchError(tok1);
+
+					}
+					//	std::cout << s2 << std::endl;
+				}
+			}
+		}
+	}
+}
+//输出错误信息
+void CheckOther::checkPointmatchError(const Token *tok)
+{
+	reportError(tok, Severity::warning, "freematch", "The point which has been freed must point to the malloc address before!");
+}
+
+
+
+
+
+
 
 
